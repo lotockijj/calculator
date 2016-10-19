@@ -26,7 +26,7 @@ public class Calculator implements ActionListener{ // work only button "+";
 	Object src;
 	Double number1 = 0.0, suma = 0.0, result = 0.0;
 	boolean function;
-	boolean addc, minus, multiply, devide, equals;
+	int state = 0;
 
 
 	public String getDisplayValue() {
@@ -261,19 +261,13 @@ public class Calculator implements ActionListener{ // work only button "+";
 				displayField.setText("");
 				function = false;
 			}
-			if (isNumberOrDot(src)) {
-				if (src == button0) displayField.setText(displayField.getText() + "0");
-				if (src == button1) displayField.setText(displayField.getText() + "1");
-				if (src == button2) displayField.setText(displayField.getText() + "2");
-				if (src == button3) displayField.setText(displayField.getText() + "3");
-				if (src == button4) displayField.setText(displayField.getText() + "4");
-				if (src == button5) displayField.setText(displayField.getText() + "5");
-				if (src == button6) displayField.setText(displayField.getText() + "6");
-				if (src == button7) displayField.setText(displayField.getText() + "7");
-				if (src == button8) displayField.setText(displayField.getText() + "8");
-				if (src == button9) displayField.setText(displayField.getText() + "9");
-				if (src == buttonPoint && displayField.getText().indexOf('.') < 0)
-					displayField.setText(displayField.getText() + ".");
+			if (isNumber(src)) {
+				displayField.setText(displayField.getText() + ((JButton) src).getText());
+				result = numberReader();
+				break;
+			}
+			if(src == buttonPoint && displayField.getText().indexOf('.') < 0){
+				displayField.setText(displayField.getText() + ".");
 				result = numberReader();
 				break;
 			}
@@ -287,41 +281,41 @@ public class Calculator implements ActionListener{ // work only button "+";
 			}
 
 			if(src == buttonPercent){
-				if(addc || minus) result = number1*result/100;
-				if(multiply || devide) result = result/100;
+				if(state == 1 || state == 2) result = number1*result/100;
+				if(state == 3 || state == 4) result = result/100;
 			}
 
 			if (isFunction(src)) {
 				function = true;
-				if (addc) {
+				if (state == 1) {
 					result = result + number1;
 					displayField.setText(result.toString());
-					addc = false;
+					state = 0;
 				}
-				if (minus) {
+				if (state == 2) {
 					result = number1 - result;
 					displayField.setText(result.toString());
-					minus = false;
+					state = 0;
 				}
-				if (multiply) {
+				if (state == 3) {
 					result = number1 * result;
 					displayField.setText(result.toString());
-					multiply = false;
+					state = 0;
 				}
-				if (devide) {
+				if (state == 4) {
 					result = number1 / result;
 					displayField.setText(result.toString());
-					devide = false;
+					state = 0;
 				}
 				if (src == buttonEqual) {
 					displayField.setText(Double.toString(result));
 					number1 = Double.parseDouble(displayField.getText());
 					defaultData();
 				}
-				if (src == buttonPlus){ addc = true; number1 = Double.parseDouble(displayField.getText());}
-				if (src == buttonMinus){ minus = true; number1 = Double.parseDouble(displayField.getText());}
-				if (src == buttonMultiply){ multiply = true; number1 = Double.parseDouble(displayField.getText());}
-				if (src == buttonDivide) {devide = true; number1 = Double.parseDouble(displayField.getText());}
+				if (src == buttonPlus){ state = 1; number1 = Double.parseDouble(displayField.getText());}
+				if (src == buttonMinus){ state = 2; number1 = Double.parseDouble(displayField.getText());}
+				if (src == buttonMultiply){ state = 3; number1 = Double.parseDouble(displayField.getText());}
+				if (src == buttonDivide) {state = 4; number1 = Double.parseDouble(displayField.getText());}
 			}
 			break;
 		}
@@ -336,12 +330,12 @@ public class Calculator implements ActionListener{ // work only button "+";
 		return num1;
 	}
 
-	private boolean isNumberOrDot(Object src){
+	private boolean isNumber(Object src){
 		function = false;
 		return  src == button0 || src == button1 || src == button2 ||
 				src == button3 || src == button4 || src == button5 ||
 				src == button6 || src == button7 || src == button8 ||
-				src == button9 || src == buttonPoint;
+				src == button9;
 	}
 
 	private boolean isFunction(Object src){
@@ -351,11 +345,7 @@ public class Calculator implements ActionListener{ // work only button "+";
 	private void defaultData(){
 		result = 0.0;
 		function = false;
-		addc = false;
-		minus = false;
-		multiply = false;
-		devide = false;
-		equals = false;
+		state = 0;
 		number1 = 0.0;
 	}
 
